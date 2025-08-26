@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Proxy Frontend</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    input[type="text"] { width: 400px; padding: 4px; }
+    button { padding: 4px 12px; }
+    #result { margin-top: 2em; border: 1px solid #ccc; padding: 1em; min-height: 300px; }
+  </style>
+</head>
+<body>
+  <h2>Web Proxy Frontend</h2>
+  <form id="proxyForm">
+    <input type="text" id="urlInput" placeholder="Paste website URL here" />
+    <button type="submit">Go</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    document.getElementById('proxyForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const url = document.getElementById('urlInput').value;
+      if (!url) return;
+      document.getElementById('result').innerHTML = "Loading...";
+      try {
+        // CHANGE THIS to your backend's endpoint:
+        const backendEndpoint = "https://your-proxy-backend.example.com/fetch";
+        const res = await fetch(backendEndpoint, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'url=' + encodeURIComponent(url)
+        });
+        const text = await res.text();
+        document.getElementById('result').innerText = text;
+      } catch (err) {
+        document.getElementById('result').innerText = "Error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
