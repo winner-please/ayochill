@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music Player</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f0f0f0; }
+        .controls { margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>AI Music Player</h1>
+
+    <audio id="audioPlayer" src="" controls autoplay></audio>
+
+    <div class="controls">
+        <button id="playPauseBtn">Play</button>
+        <button id="nextBtn">Next</button>
+        <button id="shuffleBtn">Shuffle On</button>
+        <button id="loopAllBtn">Loop All On</button>
+        <button id="loopOneBtn">Loop One Off</button>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const loopAllBtn = document.getElementById('loopAllBtn');
+        const loopOneBtn = document.getElementById('loopOneBtn');
+
+        const playlist = [
+            'audio/song1.mp3',
+            'audio/song2.mp3',
+            'audio/song3.mp3',
+            'audio/song4.mp3'
+        ];
+
+        let currentTrackIndex = 0;
+        let isShuffling = false;
+        let isLoopingAll = false;
+        let isLoopingOne = false;
+
+        function loadTrack(index) {
+            audioPlayer.src = playlist[index];
+            audioPlayer.load(); // Load the new source
+            audioPlayer.play();
+            playPauseBtn.textContent = 'Pause';
+        }
+
+        function playNextTrack() {
+            if (isLoopingOne) {
+                audioPlayer.play(); // Replay the current track if looping one
+                return;
+            }
+
+            if (isShuffling) {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * playlist.length);
+                } while (newIndex === currentTrackIndex && playlist.length > 1); // Ensure different track if possible
+                currentTrackIndex = newIndex;
+            } else {
+                currentTrackIndex++;
+                if (currentTrackIndex >= playlist.length) {
+                    if (isLoopingAll) {
+                        currentTrackIndex = 0; // Loop back to start
+                    } else {
+                        audioPlayer.pause();
+                        playPauseBtn.textContent = 'Play';
+                        currentTrackIndex = 0; // Reset for next play
+                        return; // Stop if not looping all
+                    }
+                }
+            }
+            loadTrack(currentTrackIndex);
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.textContent = 'Pause';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.textContent = 'Play';
+            }
+        });
+
+        nextBtn.addEventListener('click', playNextTrack);
+
+        shuffleBtn.addEventListener('click', () => {
+            isShuffling = !isShuffling;
+            shuffleBtn.textContent = isShuffling ? 'Shuffle Off' : 'Shuffle On';
+        });
+
+        loopAllBtn.addEventListener('click', () => {
+            isLoopingAll = !isLoopingAll;
+            loopAllBtn.textContent = isLoopingAll ? 'Loop All Off' : 'Loop All On';
+            if (isLoopingAll) isLoopingOne = false; // Disable loop one if looping all
+            loopOneBtn.textContent = isLoopingOne ? 'Loop One Off' : 'Loop One On';
+        });
+
+        loopOneBtn.addEventListener('click', () => {
+            isLoopingOne = !isLoopingOne;
+            loopOneBtn.textContent = isLoopingOne ? 'Loop One Off' : 'Loop One On';
+            if (isLoopingOne) isLoopingAll = false; // Disable loop all if looping one
+            loopAllBtn.textContent = isLoopingAll ? 'Loop All Off' : 'Loop All On';
+        });
+
+        audioPlayer.addEventListener('ended', playNextTrack);
+
+        // Initial load
+        loadTrack(currentTrackIndex);
+    </script>
+</body>
+</html>
